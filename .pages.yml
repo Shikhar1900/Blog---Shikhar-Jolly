@@ -1,0 +1,70 @@
+media:
+  input: media
+  output: /media
+content:
+  - name: articles
+    label: Articles
+    type: file
+    path: content/articles.json
+    format: json
+    fields:
+      - name: articles
+        label: Articles
+        type: object
+        list: true
+        fields:
+          - name: slug
+            label: URL slug
+            type: string
+            required: true
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: category
+            label: Category
+            type: select
+            options:
+              values:
+                - Tech
+                - Business
+                - Ideas
+          - name: date
+            label: Publication date
+            type: date
+          - name: readingTime
+            label: Reading time (minutes)
+            type: number
+          - name: featured
+            label: Featured on homepage
+            type: boolean
+          - name: excerpt
+            label: Short summary
+            type: text
+          - name: coverLabel
+            label: Cover label
+            type: string
+          - name: body
+            label: Article body (Markdown)
+            type: text
+  - name: site
+    label: Site settings
+    type: file
+    path: content/site.json
+    format: json
+    fields:
+      - name: siteName
+        label: Publication name
+        type: string
+      - name: tagline
+        label: Tagline
+        type: string
+      - name: author
+        label: Author name
+        type: string
+      - name: description
+        label: Site description
+        type: text
+settings:
+  content:
+    merge: true
