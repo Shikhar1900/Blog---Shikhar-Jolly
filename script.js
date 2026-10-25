@@ -1,31 +1,298 @@
-const menuToggle=document.querySelector('.menu-toggle');const nav=document.querySelector('.nav-links');if(menuToggle&&nav){menuToggle.addEventListener('click',()=>{const open=nav.classList.toggle('open');menuToggle.setAttribute('aria-expanded',String(open));menuToggle.textContent=open?'✕':'☰';});nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menuToggle.setAttribute('aria-expanded','false');menuToggle.textContent='☰';}));}
-const state={articles:[],filter:'All',query:''};const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function markdown(md){
- const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');
- const lines=String(md||'').split(/\r?\n/);let out='',para=[],listType=null,list=[];
- const flushPara=()=>{if(para.length){out+='<p>'+para.map(inline).join('<br>')+'</p>';para=[];}};
- const flushList=()=>{if(list.length){const tag=listType==='ol'?'ol':'ul';out+='<'+tag+'>'+list.map(x=>'<li>'+inline(x)+'</li>').join('')+'</'+tag+'>';list=[];listType=null;}};
- for(const line of lines){const t=line.trim();if(!t){flushPara();flushList();continue;}
-  const h=t.match(/^(#{1,3})\s+(.+)$/);if(h){flushPara();flushList();const level=h[1].length;out+='<h'+level+'>'+inline(h[2])+'</h'+level+'>';continue;}
-  const ol=t.match(/^\d+[.)]\s+(.+)$/),ul=t.match(/^[-*]\s+(.+)$/);if(ol||ul){flushPara();const type=ol?'ol':'ul';if(listType&&listType!==type)flushList();listType=type;list.push((ol||ul)[1]);continue;}
-  flushList();para.push(t);
- }
- flushPara();flushList();return out;
+
+const menuToggle = document.querySelector('.menu-toggle');
+const nav = document.querySelector('.nav-links');
+
+if (menuToggle && nav) {
+  menuToggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    menuToggle.setAttribute('aria-expanded', String(open));
+    menuToggle.textContent = open ? '✕' : '☰';
+  });
+
+  nav.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => {
+      nav.classList.remove('open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+      menuToggle.textContent = '☰';
+    })
+  );
 }
-function renderCards(){const grid=document.getElementById('article-grid');if(!grid)return;const list=state.articles.filter(a=>(state.filter==='All'||a.category===state.filter)&&(`${a.title} ${a.excerpt} ${a.category} ${a.body}`.toLowerCase().includes(state.query)));grid.innerHTML=list.map((a,i)=>`<article class="article-card" data-category="${esc(a.category)}"><a href="article.html?slug=${encodeURIComponent(a.slug)}" aria-label="Read ${esc(a.title)}"><div class="article-art ${['art-embeddings','art-product','art-reading'][i%3]}"><span class="mini-label">${esc(a.coverLabel||a.category)}</span><div class="dot-matrix">${esc(a.category.toUpperCase())}</div><span class="art-caption">${esc(a.date||'IDEA ATLAS')}</span></div></a><div class="article-info"><div class="meta"><span>${esc(a.category.toUpperCase())}</span><span>${Number(a.readingTime)||5} MIN</span></div><h3><a href="article.html?slug=${encodeURIComponent(a.slug)}">${esc(a.title)}</a></h3><p>${esc(a.excerpt)}</p><a class="text-link" href="article.html?slug=${encodeURIComponent(a.slug)}">Read article <span>↗</span></a></div></article>`).join('');const empty=document.getElementById('empty-state');if(empty)empty.hidden=list.length>0;}
-function renderArticle(){const root=document.getElementById('article-content');if(!root)return;const slug=new URLSearchParams(location.search).get('slug');const a=state.articles.find(x=>x.slug===slug)||state.articles[0];if(!a){root.innerHTML='<h1>Article not found</h1><p>Try browsing all writing.</p>';return;}document.title=a.title+' — Idea Atlas';root.innerHTML=`<p class="eyebrow">${esc(a.category)} · ${Number(a.readingTime)||5} MIN READ</p><h1>${esc(a.title)}</h1><p class="article-deck">${esc(a.excerpt)}</p><p class="article-byline">By Shikhar · ${esc(a.date||'Draft')}</p><div class="article-body">${markdown(a.body||'')}</div><p class="signature">Thanks for reading. Stay curious. ✳</p>`;const toc=document.querySelector('#article-toc ol');if(toc){const hs=[...root.querySelectorAll('.article-body h2,.article-body h3')];toc.innerHTML=hs.map((h,i)=>{h.id='section-'+i;return `<li><a href="#${h.id}">${h.textContent}</a></li>`}).join('');if(!hs.length)document.getElementById('article-toc').hidden=true;}}
-fetch('content/articles.json').then(r=>r.json()).then(data=>{state.articles=data.articles||[];renderCards();renderArticle();const feature=state.articles.find(a=>a.featured);const card=document.getElementById('featured-card');if(feature&&card){const title=card.querySelector('.feature-content h3');const p=card.querySelector('.feature-content>p');const link=card.querySelector('.round-link');if(title)title.textContent=feature.title;if(p)p.textContent=feature.excerpt;if(link)link.href='article.html?slug='+encodeURIComponent(feature.slug);const meta=card.querySelector('.meta');if(meta)meta.innerHTML=`<span class="tag">${esc(feature.category.toUpperCase())}</span><span>${Number(feature.readingTime)||5} MIN READ</span>`;}}).catch(()=>{const grid=document.getElementById('article-grid');if(grid)grid.innerHTML='<p>Articles could not be loaded. Please try again later.</p>';});
-document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');state.filter=btn.dataset.filter;renderCards();}));document.querySelectorAll('.topic-card').forEach(card=>card.addEventListener('click',()=>{const filter=document.querySelector(`.filter[data-filter="${card.dataset.topic}"]`);if(filter)filter.click();}));const search=document.getElementById('article-search');if(search)search.addEventListener('input',()=>{state.query=search.value.toLowerCase().trim();renderCards();});const year=document.getElementById('year');if(year)year.textContent=new Date().getFullYear();
-fetch('content/site.json').then(r=>r.json()).then(site=>{
- const fields={
-  'about-heading-first':site.aboutHeadingFirst,
-  'about-heading-second':site.aboutHeadingSecond,
-  'about-copy':site.aboutBody,
-  'about-signature-text':site.aboutSignature
- };
- Object.entries(fields).forEach(([id,value])=>{const el=document.getElementById(id);if(el&&value)el.textContent=value;});
- const profileImage=document.getElementById('about-profile-image');
- if(profileImage && site.profileImage) profileImage.src=site.profileImage;
- const resumeLink=document.getElementById('resume-download');
- if(resumeLink && site.resumeFile) resumeLink.href=site.resumeFile;
-}).catch(()=>{});
+
+const state = {
+  articles: [],
+  filter: 'All',
+  query: ''
+};
+
+const esc = s =>
+  String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[c]));
+
+function markdown(md) {
+  const inline = s =>
+    esc(s)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+  const lines = String(md || '').split(/\r?\n/);
+  let out = '', para = [], listType = null, list = [];
+
+  const flushPara = () => {
+    if (para.length) {
+      out += '<p>' + para.map(inline).join('<br>') + '</p>';
+      para = [];
+    }
+  };
+
+  const flushList = () => {
+    if (list.length) {
+      const tag = listType === 'ol' ? 'ol' : 'ul';
+      out += '<' + tag + '>' +
+        list.map(x => '<li>' + inline(x) + '</li>').join('') +
+        '</' + tag + '>';
+      list = [];
+      listType = null;
+    }
+  };
+
+  for (const line of lines) {
+    const t = line.trim();
+
+    if (!t) {
+      flushPara();
+      flushList();
+      continue;
+    }
+
+    const h = t.match(/^(#{1,3})\s+(.+)$/);
+
+    if (h) {
+      flushPara();
+      flushList();
+      const level = h[1].length;
+      out += '<h' + level + '>' + inline(h[2]) +
+        '</h' + level + '>';
+      continue;
+    }
+
+    const ol = t.match(/^\d+[.)]\s+(.+)$/);
+    const ul = t.match(/^[-*]\s+(.+)$/);
+
+    if (ol || ul) {
+      flushPara();
+      const type = ol ? 'ol' : 'ul';
+
+      if (listType && listType !== type) flushList();
+
+      listType = type;
+      list.push((ol || ul)[1]);
+      continue;
+    }
+
+    flushList();
+    para.push(t);
+  }
+
+  flushPara();
+  flushList();
+
+  return out;
+}
+
+function renderCards() {
+  const grid = document.getElementById('article-grid');
+  if (!grid) return;
+
+  const list = state.articles.filter(a =>
+    (state.filter === 'All' || a.category === state.filter) &&
+    (`${a.title} ${a.excerpt} ${a.category} ${a.body}`
+      .toLowerCase().includes(state.query))
+  );
+
+  grid.innerHTML = list.map((a, i) => `
+    <article class="article-card" data-category="${esc(a.category)}">
+      <a href="article.html?slug=${encodeURIComponent(a.slug)}"
+         aria-label="Read ${esc(a.title)}">
+        ${
+          a.coverImage
+            ? `<div class="article-art article-art-image">
+                 <img src="${esc(a.coverImage)}"
+                      alt="${esc(a.coverLabel || a.title)}"
+                      loading="lazy">
+               </div>`
+            : `<div class="article-art ${['art-embeddings', 'art-product', 'art-reading'][i % 3]}">
+                 <span class="mini-label">${esc(a.coverLabel || a.category)}</span>
+                 <div class="dot-matrix">${esc((a.category || '').toUpperCase())}</div>
+                 <span class="art-caption">${esc(a.date || 'IDEA ATLAS')}</span>
+               </div>`
+        }
+      </a>
+      <div class="article-info">
+        <div class="meta">
+          <span>${esc((a.category || '').toUpperCase())}</span>
+          <span>${Number(a.readingTime) || 5} MIN</span>
+        </div>
+        <h3><a href="article.html?slug=${encodeURIComponent(a.slug)}">${esc(a.title)}</a></h3>
+        <p>${esc(a.excerpt)}</p>
+        <a class="text-link" href="article.html?slug=${encodeURIComponent(a.slug)}">
+          Read article <span>↗</span>
+        </a>
+      </div>
+    </article>
+  `).join('');
+
+  const empty = document.getElementById('empty-state');
+  if (empty) empty.hidden = list.length > 0;
+}
+
+function renderArticle() {
+  const root = document.getElementById('article-content');
+  if (!root) return;
+
+  const slug = new URLSearchParams(location.search).get('slug');
+  const a = state.articles.find(x => x.slug === slug) || state.articles[0];
+
+  if (!a) {
+    root.innerHTML = '<h1>Article not found</h1><p>Try browsing all writing.</p>';
+    return;
+  }
+
+  document.title = a.title + ' — Idea Atlas';
+
+  const coverImage = a.coverImage
+    ? `<figure class="article-cover">
+         <img src="${esc(a.coverImage)}"
+              alt="${esc(a.coverLabel || a.title)}">
+         ${a.coverLabel ? `<figcaption>${esc(a.coverLabel)}</figcaption>` : ''}
+       </figure>`
+    : '';
+
+  root.innerHTML = `
+    <p class="eyebrow">${esc(a.category)} · ${Number(a.readingTime) || 5} MIN READ</p>
+    <h1>${esc(a.title)}</h1>
+    <p class="article-deck">${esc(a.excerpt)}</p>
+    <p class="article-byline">By Shikhar · ${esc(a.date || 'Draft')}</p>
+    ${coverImage}
+    <div class="article-body">${markdown(a.body || '')}</div>
+    <p class="signature">Thanks for reading. Stay curious. ✳</p>
+  `;
+
+  const toc = document.querySelector('#article-toc ol');
+
+  if (toc) {
+    const hs = [...root.querySelectorAll('.article-body h2, .article-body h3')];
+
+    toc.innerHTML = hs.map((h, i) => {
+      h.id = 'section-' + i;
+      return `<li><a href="#${h.id}">${h.textContent}</a></li>`;
+    }).join('');
+
+    const tocContainer = document.getElementById('article-toc');
+    if (tocContainer) tocContainer.hidden = !hs.length;
+  }
+}
+
+fetch('content/articles.json')
+  .then(r => {
+    if (!r.ok) throw new Error('Could not load articles');
+    return r.json();
+  })
+  .then(data => {
+    state.articles = data.articles || [];
+
+    renderCards();
+    renderArticle();
+
+    const feature = state.articles.find(a => a.featured);
+    const card = document.getElementById('featured-card');
+
+    if (feature && card) {
+      const title = card.querySelector('.feature-content h3');
+      const p = card.querySelector('.feature-content>p');
+      const link = card.querySelector('.round-link');
+
+      if (title) title.textContent = feature.title;
+      if (p) p.textContent = feature.excerpt;
+
+      if (link) {
+        link.href = 'article.html?slug=' + encodeURIComponent(feature.slug);
+      }
+
+      const meta = card.querySelector('.meta');
+
+      if (meta) {
+        meta.innerHTML = `
+          <span class="tag">${esc((feature.category || '').toUpperCase())}</span>
+          <span>${Number(feature.readingTime) || 5} MIN READ</span>
+        `;
+      }
+    }
+  })
+  .catch(() => {
+    const grid = document.getElementById('article-grid');
+    if (grid) {
+      grid.innerHTML = '<p>Articles could not be loaded. Please try again later.</p>';
+    }
+  });
+
+document.querySelectorAll('.filter').forEach(btn =>
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.filter = btn.dataset.filter;
+    renderCards();
+  })
+);
+
+document.querySelectorAll('.topic-card').forEach(card =>
+  card.addEventListener('click', () => {
+    const filter = document.querySelector(
+      `.filter[data-filter="${card.dataset.topic}"]`
+    );
+    if (filter) filter.click();
+  })
+);
+
+const search = document.getElementById('article-search');
+
+if (search) {
+  search.addEventListener('input', () => {
+    state.query = search.value.toLowerCase().trim();
+    renderCards();
+  });
+}
+
+const year = document.getElementById('year');
+if (year) year.textContent = new Date().getFullYear();
+
+fetch('content/site.json')
+  .then(r => r.json())
+  .then(site => {
+    const fields = {
+      'about-heading-first': site.aboutHeadingFirst,
+      'about-heading-second': site.aboutHeadingSecond,
+      'about-copy': site.aboutBody,
+      'about-signature-text': site.aboutSignature
+    };
+
+    Object.entries(fields).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el && value) el.textContent = value;
+    });
+
+    const profileImage = document.getElementById('about-profile-image');
+    if (profileImage && site.profileImage) {
+      profileImage.src = site.profileImage;
+    }
+
+    const resumeLink = document.getElementById('resume-download');
+    if (resumeLink && site.resumeFile) {
+      resumeLink.href = site.resumeFile;
+    }
+  })
+  .catch(() => {});
