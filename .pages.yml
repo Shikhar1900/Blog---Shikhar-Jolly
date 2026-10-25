@@ -44,9 +44,21 @@ content:
           - name: coverLabel
             label: Cover label
             type: string
+          - name: coverImage
+            label: Cover image
+            type: image
+            options:
+              media: media
+              path: /
+              extensions: [jpg, jpeg, png, webp]
           - name: body
-            label: Article body (Markdown)
-            type: text
+             label: Article body
+             type: rich-text
+            options:
+              format: markdown
+              media: media
+              path: /
+              extensions: [jpg, jpeg, png, webp]
   - name: site
     label: Site settings
     type: file
