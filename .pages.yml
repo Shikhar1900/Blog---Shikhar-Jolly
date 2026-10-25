@@ -50,10 +50,10 @@ content:
             options:
               media: media
               path: /
-              extensions: [jpg, jpeg, png, webp]
+              extensions: [jpg, jpeg, png, webp]          
           - name: body
-             label: Article body
-             type: rich-text
+            label: Article body
+            type: rich-text
             options:
               format: markdown
               media: media
