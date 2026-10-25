@@ -65,6 +65,24 @@ content:
       - name: description
         label: Site description
         type: text
+      - name: aboutHeadingFirst
+        label: About heading (first line)
+        type: string
+      - name: aboutHeadingSecond
+        label: About heading (second line)
+        type: string
+      - name: aboutBody
+        label: About biography
+        type: text
+      - name: aboutSignature
+        label: About signature
+        type: string
+      - name: profileImage
+        label: Profile image path
+        type: string
+      - name: resumeFile
+        label: Resume PDF path
+        type: string
 settings:
   content:
     merge: true

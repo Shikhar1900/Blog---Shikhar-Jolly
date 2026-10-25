@@ -16,3 +16,16 @@ function renderCards(){const grid=document.getElementById('article-grid');if(!gr
 function renderArticle(){const root=document.getElementById('article-content');if(!root)return;const slug=new URLSearchParams(location.search).get('slug');const a=state.articles.find(x=>x.slug===slug)||state.articles[0];if(!a){root.innerHTML='<h1>Article not found</h1><p>Try browsing all writing.</p>';return;}document.title=a.title+' — Idea Atlas';root.innerHTML=`<p class="eyebrow">${esc(a.category)} · ${Number(a.readingTime)||5} MIN READ</p><h1>${esc(a.title)}</h1><p class="article-deck">${esc(a.excerpt)}</p><p class="article-byline">By Shikhar · ${esc(a.date||'Draft')}</p><div class="article-body">${markdown(a.body||'')}</div><p class="signature">Thanks for reading. Stay curious. ✳</p>`;const toc=document.querySelector('#article-toc ol');if(toc){const hs=[...root.querySelectorAll('.article-body h2,.article-body h3')];toc.innerHTML=hs.map((h,i)=>{h.id='section-'+i;return `<li><a href="#${h.id}">${h.textContent}</a></li>`}).join('');if(!hs.length)document.getElementById('article-toc').hidden=true;}}
 fetch('content/articles.json').then(r=>r.json()).then(data=>{state.articles=data.articles||[];renderCards();renderArticle();const feature=state.articles.find(a=>a.featured);const card=document.getElementById('featured-card');if(feature&&card){const title=card.querySelector('.feature-content h3');const p=card.querySelector('.feature-content>p');const link=card.querySelector('.round-link');if(title)title.textContent=feature.title;if(p)p.textContent=feature.excerpt;if(link)link.href='article.html?slug='+encodeURIComponent(feature.slug);const meta=card.querySelector('.meta');if(meta)meta.innerHTML=`<span class="tag">${esc(feature.category.toUpperCase())}</span><span>${Number(feature.readingTime)||5} MIN READ</span>`;}}).catch(()=>{const grid=document.getElementById('article-grid');if(grid)grid.innerHTML='<p>Articles could not be loaded. Please try again later.</p>';});
 document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');state.filter=btn.dataset.filter;renderCards();}));document.querySelectorAll('.topic-card').forEach(card=>card.addEventListener('click',()=>{const filter=document.querySelector(`.filter[data-filter="${card.dataset.topic}"]`);if(filter)filter.click();}));const search=document.getElementById('article-search');if(search)search.addEventListener('input',()=>{state.query=search.value.toLowerCase().trim();renderCards();});const year=document.getElementById('year');if(year)year.textContent=new Date().getFullYear();
+fetch('content/site.json').then(r=>r.json()).then(site=>{
+ const fields={
+  'about-heading-first':site.aboutHeadingFirst,
+  'about-heading-second':site.aboutHeadingSecond,
+  'about-copy':site.aboutBody,
+  'about-signature-text':site.aboutSignature
+ };
+ Object.entries(fields).forEach(([id,value])=>{const el=document.getElementById(id);if(el&&value)el.textContent=value;});
+ const profileImage=document.getElementById('about-profile-image');
+ if(profileImage && site.profileImage) profileImage.src=site.profileImage;
+ const resumeLink=document.getElementById('resume-download');
+ if(resumeLink && site.resumeFile) resumeLink.href=site.resumeFile;
+}).catch(()=>{});

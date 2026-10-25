@@ -28,3 +28,12 @@ Run `python -m http.server 8000` from this directory and open `http://localhost:
 ## Publishing future articles
 
 The public site reads its articles from `content/articles.json`. Once the repository is connected to Pages CMS, open the CMS, choose **Articles**, add an article entry, fill in its slug/title/category/date/summary/body, and save. Set **Featured on homepage** for the lead story. The save creates a GitHub commit; Cloudflare Pages then deploys the update automatically. Do not edit the HTML/CSS/JavaScript for routine article publishing.
+
+
+## Profile photo and downloadable resume
+- The About section reads the profile photo path from `content/site.json` (`profileImage`) and the resume download path from `resumeFile`.
+- The current resume is included at `media/Shikhar-Jolly-Resume.pdf`. It is linked from the About section as a downloadable PDF.
+- To update the resume later, replace `media/Shikhar-Jolly-Resume.pdf` with the new PDF using the same filename, then commit it. No code change is required.
+- To add or replace your profile photo, upload it to `media/` (for example `media/shikhar-jolly.jpg`) and set `profileImage` in Pages CMS → Site settings to `/media/shikhar-jolly.jpg`. Reusing the same filename makes replacement straightforward.
+- Pages CMS Site settings now exposes `Profile image path` and `Resume PDF path`, so the paths can be changed later without editing HTML. Keep the actual files in the configured `media/` directory.
+- **Privacy note:** the resume PDF is publicly downloadable once the site is public. The supplied resume includes a phone number and email address. Publish it only if you are comfortable making those details public; consider using a public-facing version with contact details you want to share.

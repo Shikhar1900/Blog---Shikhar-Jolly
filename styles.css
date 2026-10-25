@@ -3,3 +3,13 @@
 
 .search-wrap{display:flex;align-items:center;gap:18px;border:1px solid var(--line);padding:12px 16px;margin:-10px 0 28px;max-width:560px}.search-wrap label{font:9px var(--mono);letter-spacing:.08em;color:var(--muted);white-space:nowrap}.search-wrap input{flex:1;min-width:0;border:0;background:transparent;font:13px var(--sans);outline:none;color:var(--ink)}.article-page{padding-top:58px;padding-bottom:100px;max-width:900px}.article-page>.text-link{margin-bottom:45px}.article-page h1{max-width:820px;font-size:clamp(42px,6vw,72px);margin:20px 0}.article-deck{font-size:19px;line-height:1.7;color:#5f6666;max-width:720px}.article-byline{font:10px var(--mono);letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:25px;margin-bottom:36px}.article-body{font-size:17px;line-height:1.9;max-width:720px}.article-body h2{font-size:32px;margin:42px 0 14px}.article-body h3{font-size:24px;margin:30px 0 10px}.article-toc{border:1px solid var(--line);padding:20px 24px;margin:42px 0;max-width:720px}.article-toc strong{font:10px var(--mono);letter-spacing:.1em}.article-toc ol{padding-left:20px;line-height:2}.article-toc a{color:var(--blue)}.article-toc[hidden]{display:none}.article-body p{margin:0 0 22px}.article-body p em{color:#666}.copyright{font:9px var(--mono);letter-spacing:.06em;color:#777b78}
 @media(max-width:760px){.search-wrap{align-items:flex-start;flex-direction:column;gap:8px}.search-wrap input{width:100%;padding:7px 0}.article-page{padding-top:36px}.article-body{font-size:16px}.article-toc{padding:18px}.article-page>.text-link{margin-bottom:30px}}
+
+
+/* About section profile portrait */
+.about-inner{grid-template-columns:minmax(220px,0.8fr) minmax(0,2fr);gap:8%;align-items:center}
+.about-profile{display:flex;flex-direction:column;align-items:flex-start;gap:28px}
+.about-profile-image{display:block;width:min(100%,280px);aspect-ratio:4/5;object-fit:cover;border-radius:4px;background:#e6e1d6;border:1px solid rgba(255,255,255,.16)}
+.about-text{min-width:0}
+@media(max-width:760px){.about-inner{grid-template-columns:1fr;gap:30px}.about-profile{flex-direction:row;align-items:center;gap:24px}.about-profile-image{width:132px;aspect-ratio:3/4}.about-mark{font-size:70px}}
+
+.about-actions{margin-top:1.5rem}.about-actions .button{display:inline-flex;align-items:center;gap:.75rem;text-decoration:none}
