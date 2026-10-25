@@ -23,3 +23,8 @@ Run `python -m http.server 8000` from this directory and open `http://localhost:
 - Pages CMS is an external publishing dashboard; the site does not embed an admin password/login of its own. Repository access controls who can edit content.
 - The sample article content is starter/demo text; replace it with your final writing before public launch.
 - Free tiers and limits can change. Confirm terms before launch.
+
+
+## Publishing future articles
+
+The public site reads its articles from `content/articles.json`. Once the repository is connected to Pages CMS, open the CMS, choose **Articles**, add an article entry, fill in its slug/title/category/date/summary/body, and save. Set **Featured on homepage** for the lead story. The save creates a GitHub commit; Cloudflare Pages then deploys the update automatically. Do not edit the HTML/CSS/JavaScript for routine article publishing.
